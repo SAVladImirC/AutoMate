@@ -28,6 +28,7 @@ namespace Repositories
             services.AddTransient<ReplacementRepository>();
             services.AddTransient<OfferRepository>();
             services.AddTransient<SaleRepository>();
+            services.AddTransient<ModelRepository>();
             return services;
         }
     }

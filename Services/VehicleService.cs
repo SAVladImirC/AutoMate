@@ -10,11 +10,12 @@ namespace Services
     {
         private readonly VehicleRepository _vehicleRepository;
         private readonly PerformedServiceRepository _performedServiceRepository;
-
-        public VehicleService(VehicleRepository vehicleRepository, PerformedServiceRepository performedServiceRepository)
+        private readonly ModelRepository _modelRepository;
+        public VehicleService(VehicleRepository vehicleRepository, PerformedServiceRepository performedServiceRepository, ModelRepository modelRepository)
         {
             _vehicleRepository = vehicleRepository;
-            _performedServiceRepository= performedServiceRepository;
+            _performedServiceRepository = performedServiceRepository;
+            _modelRepository = modelRepository;
         }
 
 
@@ -23,6 +24,11 @@ namespace Services
             try
             {
                 List<Vehicle> vehicles = await _vehicleRepository.FindAll(v => v.OwnerId== userId);
+                foreach(Vehicle vehicle in vehicles)
+                {
+                    await _vehicleRepository.LoadRelatedReference(vehicle, VehicleRelatedDataReferences.MODEL);
+                    await _modelRepository.LoadRelatedReference(vehicle.Model);
+                }
                 return new SuccessResponse<List<Vehicle>>() { Data = vehicles };
             }
             catch(Exception)
@@ -40,6 +46,7 @@ namespace Services
                 {
                     await _vehicleRepository.LoadRelatedCollection(vehicle, VehicleRelatedDataCollections.PERFORMED_SERVICES);
                     await _vehicleRepository.LoadRelatedReference(vehicle, VehicleRelatedDataReferences.MODEL);
+                    await _modelRepository.LoadRelatedReference(vehicle.Model);
                     foreach(PerformedService p in vehicle.PerformedServices)
                     {
                         await _performedServiceRepository.LoadRelatedReference<Service>(p, PerformedServiceRelatedDataReferences.SERVICE);
