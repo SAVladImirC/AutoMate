@@ -6,7 +6,6 @@ namespace Data.Models
 #nullable disable
     public class PerformedService
     {
-        [JsonIgnore]
         public int Id { get; set; }
         public Money Price { get; set; }
         public DateTime PerformedOn { get; set; }
